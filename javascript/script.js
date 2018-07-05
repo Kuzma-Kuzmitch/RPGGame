@@ -8,9 +8,15 @@ $(document).ready(function() {
     "reyInfo": "A young apprentice",
     "hasAttacked": false,
     "isStunned": false,
+    "wasStunned": false,
     "staffSwipe": function(target) {
       var dmg = Math.floor(Math.random() * 2) + 2
       target.HP = target.HP - dmg
+      if (kyloSith.isCounter) {
+        alert("Kylo strikes back!")
+        reyJedi.HP = reyJedi.HP - Math.floor(dmg / 2)
+        $("#reyHP").text("HP: " + reyJedi.HP + "/15")
+      }
       reyJedi.hasAttacked = true
       $("#vaderHP").text("HP: " + vaderSith.HP + "/40")
       $("#kyloHP").text("HP:" + kyloSith.HP + "/25")
@@ -31,12 +37,19 @@ $(document).ready(function() {
     "lukeInfo": "The Jedi Master",
     "hasAttacked": false,
     "isStunned": false,
+    "wasStunned": false,
     "isFocus": false,
     "saberAssault": function(target) {
       var dmg = Math.floor(Math.random() * 2) + 6
       if (lukeJedi.isFocus) {
         dmg = dmg * 2
         lukeJedi.isFocus = false
+        $(".lukeText").text(lukeJedi.lukeInfo)
+      }
+      if (kyloSith.isCounter) {
+        alert("Kylo strikes back!")
+        lukeJedi.HP = lukeJedi.HP - Math.floor(dmg / 2)
+        $("#lukeHP").text("HP: " + lukeJedi.HP + "/30")
       }
       target.HP = target.HP - dmg
       lukeJedi.hasAttacked = true
@@ -47,6 +60,7 @@ $(document).ready(function() {
     "focus": function() {
       lukeJedi.isFocus = true
       lukeJedi.hasAttacked = true
+      $(".lukeText").text("Focused")
       gameTurnCheck()
     },
   };
@@ -65,14 +79,65 @@ $(document).ready(function() {
       vaderSith.hasAttacked = true
       $("#reyHP").text("HP: " + reyJedi.HP + "/15")
       $("#lukeHP").text("HP:" + lukeJedi.HP + "/30")
-    }
+    },
+    "forceChoke": function(){
+      var target = Math.floor(Math.random() * 2)
+      if (target > 0) {
+        if (!reyJedi.isStunned && !reyJedi.wasStunned) {
+          reyJedi.isStunned = true
+          vaderSith.hasAttacked = true
+          alert("Rey is stunned!")
+        }
+        else {
+          alert("Rey is not stunned!")
+          break
+        }
+      }
+      else {
+        if (!lukeJedi.isStunned && !lukeJedi.wasStunned) {
+          lukeJedi.isStunned = true
+          vaderSith.hasAttacked = true
+          alert("Luke is stunned!")
+        }
+        else {
+          alert("Luke is not stunned!")
+          break
+        }
+      }
+    },
   }
 
   var kyloSith = {
     "Name": "Kylo Ren",
     "HP": 25,
-    "attacks": ["Reckless Swipe", "Counter"],
-    "kyloInfo": "A fallen student"
+    "attacks": ["Reckless Swing", "Counter"],
+    "kyloInfo": "A fallen student",
+    "isStunned": false,
+    "hasAttacked": false,
+    "isCounter": false,
+    "recklessSwing": function() {
+      var target = Math.floor(Math.random() * 2)
+      var dmg = Math.floor(Math.random() * 6) + 3
+      if (target > 0) {
+        reyJedi.HP = reyJedi.HP - dmg
+        kyloSith.HP = kyloSith.HP - Math.floor(dmg / 2)
+        kyloSith.hasAttacked = true
+        $("#reyHP").text("HP: " + reyJedi.HP + "/15")
+        $("#lukeHP").text("HP:" + lukeJedi.HP + "/30")
+      }
+      else {
+        lukeJedi.HP = lukeJedi.HP - dmg
+        kyloSith.HP = kyloSith.HP - Math.floor(dmg / 2)
+        kyloSith.hasAttacked = true
+        $("#reyHP").text("HP: " + reyJedi.HP + "/15")
+        $("#lukeHP").text("HP:" + lukeJedi.HP + "/30")
+      }
+    },
+    "counter": function(){
+      kyloSith.isCounter = true
+      kyloSith.hasAttacked = true
+      $(".kyloText").text("Countering")
+    }
   }
 
 
@@ -235,8 +300,33 @@ function resetTurn() {
   $("#lukeButton").prop("disabled", false)
 }
 
+function resetEnemy(){
+  vaderSith.hasAttacked = false
+  kyloSith.hasAttacked = false
+  kyloSith.isCounter = false
+  $(".kyloText").text(kyloSith.kyloInfo)
+}
+
 function enemyTurn() {
-  
+  var vaderAttack = Math.floor(Math.random() * 2)
+  var kyloAttack = Math.floor(Math.random() * 2)
+  resetEnemy()
+  if (vaderAttack > 0) {
+    alert("Vader used Force Lighting!")
+    vaderSith.forceLightning()
+  }
+  else {
+    alert("Vader used Force Choke!")
+    vaderSith.forceChoke()
+  }
+  if (kyloAttack > 0) {
+    alert("Kylo used Reckless Swing!")
+    kyloSith.recklessSwing()
+  }
+  else {
+    alert("Kylo used Counter!")
+    kyloSith.counter()
+  }
 }
 
 
