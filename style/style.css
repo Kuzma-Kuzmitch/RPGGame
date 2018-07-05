@@ -1,0 +1,28 @@
+#reyStats {
+  z-index: 3;
+  position: absolute;
+  margin-left: 200px;
+  margin-top: 10px;
+}
+
+#lukeStats {
+  z-index: 3;
+  position: absolute;
+  margin-left: 10px;
+  margin-top: 10px;
+}
+
+#vaderStats {
+  z-index: 3;
+  position: absolute;
+  margin-left: 200px;
+  margin-top: 10px;
+}
+
+.lukeImg {
+  transform: scaleX(-1)
+}
+
+.vaderImg {
+  transform: scaleX(-1)
+}
