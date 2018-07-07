@@ -12,7 +12,7 @@ $(document).ready(function() {
     "staffSwipe": function(target) {
       var dmg = Math.floor(Math.random() * 2) + 2
       target.HP = target.HP - dmg
-      if (kyloSith.isCounter) {
+      if (target.isCounter) {
         alert("Kylo strikes back!")
         reyJedi.HP = reyJedi.HP - Math.floor(dmg / 2)
         $("#reyHP").text("HP: " + reyJedi.HP + "/15")
@@ -25,6 +25,12 @@ $(document).ready(function() {
     "forcePush": function(target) {
       target.isStunned = true
       alert(target.Name + " is stunned!");
+      if (target === vaderSith) {
+        $(".vaderStatus").text("Stunned")
+      }
+      else if (target === kyloSith) {
+        $(".kyloStatus").text("Stunned")
+      }
       reyJedi.hasAttacked = true
       gameTurnCheck()
     },
@@ -44,9 +50,9 @@ $(document).ready(function() {
       if (lukeJedi.isFocus) {
         dmg = dmg * 2
         lukeJedi.isFocus = false
-        $(".lukeText").text(lukeJedi.lukeInfo)
+        $(".lukeStatus").text("")
       }
-      if (kyloSith.isCounter) {
+      if (kyloSith.isCounter && target === kyloSith) {
         alert("Kylo strikes back!")
         lukeJedi.HP = lukeJedi.HP - Math.floor(dmg / 2)
         $("#lukeHP").text("HP: " + lukeJedi.HP + "/30")
@@ -60,7 +66,7 @@ $(document).ready(function() {
     "focus": function() {
       lukeJedi.isFocus = true
       lukeJedi.hasAttacked = true
-      $(".lukeText").text("Fasdasdasd")
+      $(".lukeStatus").text("Focused")
       gameTurnCheck()
     },
   };
@@ -72,6 +78,7 @@ $(document).ready(function() {
     "vaderInfo": "The Sith Lord",
     "hasAttacked": false,
     "isStunned": false,
+    "wasStunned": false,
     "forceLightning": function(){
       var dmg = Math.floor(Math.random() * 2) + 2
       lukeJedi.HP = lukeJedi.HP - dmg
@@ -87,6 +94,7 @@ $(document).ready(function() {
           reyJedi.isStunned = true
           vaderSith.hasAttacked = true
           alert("Rey is stunned!")
+          $(".reyStatus").text("Stunned")
         }
         else {
           alert("Rey is not stunned!")
@@ -97,6 +105,7 @@ $(document).ready(function() {
           lukeJedi.isStunned = true
           vaderSith.hasAttacked = true
           alert("Luke is stunned!")
+          $(".lukeStatus").text("Stunned")
         }
         else {
           alert("Luke is not stunned!")
@@ -111,6 +120,7 @@ $(document).ready(function() {
     "attacks": ["Reckless Swing", "Counter"],
     "kyloInfo": "A fallen student",
     "isStunned": false,
+    "wasStunned": false,
     "hasAttacked": false,
     "isCounter": false,
     "recklessSwing": function() {
@@ -120,6 +130,7 @@ $(document).ready(function() {
         reyJedi.HP = reyJedi.HP - dmg
         kyloSith.HP = kyloSith.HP - Math.floor(dmg / 2)
         kyloSith.hasAttacked = true
+        $("#kyloHP").text("HP:" + kyloSith.HP + "/25")
         $("#reyHP").text("HP: " + reyJedi.HP + "/15")
         $("#lukeHP").text("HP:" + lukeJedi.HP + "/30")
       }
@@ -127,6 +138,7 @@ $(document).ready(function() {
         lukeJedi.HP = lukeJedi.HP - dmg
         kyloSith.HP = kyloSith.HP - Math.floor(dmg / 2)
         kyloSith.hasAttacked = true
+        $("#kyloHP").text("HP:" + kyloSith.HP + "/25")
         $("#reyHP").text("HP: " + reyJedi.HP + "/15")
         $("#lukeHP").text("HP:" + lukeJedi.HP + "/30")
       }
@@ -134,19 +146,17 @@ $(document).ready(function() {
     "counter": function(){
       kyloSith.isCounter = true
       kyloSith.hasAttacked = true
-      $(".kyloText").text("Countering")
+      $(".kyloStatus").text("Countering")
     }
   }
 
 
 // Rey
 $("#reyButton").on("click", function(){
-  $("#reyCard").removeClass("mx-auto").addClass("float-left")
   $("#reyAttacks").removeClass("d-none").addClass("d-block")
 });
 
 $("#reyAttacksClose").on("click", function() {
-  $("#reyCard").removeClass("float-left").addClass("mx-auto")
   $("#reyAttacks").removeClass("d-block").addClass("d-none")
   $("#reyTargets").removeClass("d-block staffSwipe forcePush").addClass("d-none")
 });
@@ -168,13 +178,11 @@ $(".forcePush").on("click", function(){
 $(".reyVader").on("click", function(){
   if ($("#reyTargets").hasClass("staffSwipe")) {
     reyJedi.staffSwipe(vaderSith)
-    $("#reyCard").removeClass("float-left").addClass("mx-auto")
     $("#reyAttacks").removeClass("d-block").addClass("d-none")
     $("#reyTargets").removeClass("d-block staffSwipe forcePush").addClass("d-none")
   }
   else if ($("#reyTargets").hasClass("forcePush")) {
     reyJedi.forcePush(vaderSith)
-    $("#reyCard").removeClass("float-left").addClass("mx-auto")
     $("#reyAttacks").removeClass("d-block").addClass("d-none")
     $("#reyTargets").removeClass("d-block staffSwipe forcePush").addClass("d-none")
   }
@@ -183,13 +191,11 @@ $(".reyVader").on("click", function(){
 $(".reyKylo").on("click", function(){
   if ($("#reyTargets").hasClass("staffSwipe")) {
     reyJedi.staffSwipe(kyloSith)
-    $("#reyCard").removeClass("float-left").addClass("mx-auto")
     $("#reyAttacks").removeClass("d-block").addClass("d-none")
     $("#reyTargets").removeClass("d-block staffSwipe forcePush").addClass("d-none")
   }
   else if ($("#reyTargets").hasClass("forcePush")) {
     reyJedi.forcePush(kyloSith)
-    $("#reyCard").removeClass("float-left").addClass("mx-auto")
     $("#reyAttacks").removeClass("d-block").addClass("d-none")
     $("#reyTargets").removeClass("d-block staffSwipe forcePush").addClass("d-none")
   }
@@ -200,12 +206,10 @@ $("#reyHP").text("HP: " + reyJedi.HP + "/15")
 
 // Luke
 $("#lukeButton").on("click", function(){
-  $("#lukeCard").removeClass("mx-auto").addClass("float-right")
   $("#lukeAttack").removeClass("d-none").addClass("d-block")
 });
 
 $("#lukeAttacksClose").on("click", function() {
-  $("#lukeCard").removeClass("float-right").addClass("mx-auto")
   $("#lukeAttack").removeClass("d-block").addClass("d-none")
   $("#lukeTargets").removeClass("d-block").addClass("d-none")
 
@@ -221,9 +225,8 @@ $(".saberAssault").on("click", function(){
   $("#lukeTargets").removeClass("d-none").addClass("d-block saberAssault")
 });
 
-$(".focus").on("click", function(){
+$(".lukeFocus").on("click", function(){
   lukeJedi.focus()
-  $("#lukeCard").removeClass("float-right").addClass("mx-auto")
   $("#lukeAttack").removeClass("d-block").addClass("d-none")
   $("#lukeTargets").removeClass("d-block saberAssault focus").addClass("d-none")
 });
@@ -231,7 +234,6 @@ $(".focus").on("click", function(){
 $(".lukeVader").on("click", function(){
   if ($("#lukeTargets").hasClass("saberAssault")) {
     lukeJedi.saberAssault(vaderSith)
-    $("#lukeCard").removeClass("float-right").addClass("mx-auto")
     $("#lukeAttack").removeClass("d-block").addClass("d-none")
     $("#lukeTargets").removeClass("d-block saberAssault focus").addClass("d-none")
   }
@@ -240,7 +242,6 @@ $(".lukeVader").on("click", function(){
 $(".lukeKylo").on("click", function(){
   if ($("#lukeTargets").hasClass("saberAssault")) {
     lukeJedi.saberAssault(kyloSith)
-    $("#lukeCard").removeClass("float-right").addClass("mx-auto")
     $("#lukeAttack").removeClass("d-block").addClass("d-none")
     $("#lukeTargets").removeClass("d-block saberAssault focus").addClass("d-none")
   }
@@ -285,9 +286,11 @@ function gameTurnCheck () {
     $("#lukeButton").prop("disabled", true)
   }
   if (reyJedi.hasAttacked && lukeJedi.hasAttacked) {
-    alert("Enemy turn!")
-    enemyTurn()
-    resetTurn()
+    setTimeout(function(){alert("Enemy turn!"); }, 500);
+    setTimeout(function() {enemyTurn(); resetTurn();}, 500);
+    // setTimeout(function(){alert("Your turn!"); }, 500);
+    // setTimeout(function(){resetTurn(); }, 500);
+    // resetTurn()
   }
 }
 
@@ -296,19 +299,59 @@ function resetTurn() {
   $("#reyButton").prop("disabled", false)
   lukeJedi.hasAttacked = false
   $("#lukeButton").prop("disabled", false)
+  if (lukeJedi.isStunned) {
+    lukeJedi.isStunned = false
+    lukeJedi.wasStunned = true
+    lukeJedi.hasAttacked = true
+    $("#lukeButton").prop("disabled", true)
+  }
+  else if (!lukeJedi.isStunned && lukeJedi.wasStunned) {
+    lukeJedi.wasStunned = false
+    $(".lukeStatus").text("")
+  }
+  if (reyJedi.isStunned) {
+    reyJedi.isStunned = false
+    reyJedi.wasStunned = true
+    reyJedi.hasAttacked = true
+    $("#reyButton").prop("disabled", true)
+  }
+  else if (!reyJedi.isStunned && reyJedi.wasStunned) {
+    reyJedi.wasStunned = false
+    $(".reyStatus").text("")
+  }
 }
 
 function resetEnemy(){
   vaderSith.hasAttacked = false
   kyloSith.hasAttacked = false
   kyloSith.isCounter = false
-  $(".kyloText").text(kyloSith.kyloInfo)
 }
 
 function enemyTurn() {
-  var vaderAttack = Math.floor(Math.random() * 2)
-  var kyloAttack = Math.floor(Math.random() * 2)
   resetEnemy()
+  if (vaderSith.isStunned) {
+    alert("Vader can't attack!")
+    vaderSith.isStunned = false
+    vaderSith.wasStunned = true
+  }
+  else {
+    vaderTurn()
+    vaderSith.wasStunned = false
+    $(".vaderStatus").text("")
+  }
+  if (kyloSith.isStunned) {
+    alert("Kylo can't Attack!")
+    kyloSith.isStunned = false
+    kyloSith.wasStunned = true
+  }
+  else {
+    kyloTurn()
+    kyloSith.wasStunned = false
+  }
+}
+
+function vaderTurn() {
+  var vaderAttack = Math.floor(Math.random() * 2)
   if (vaderAttack > 0) {
     alert("Vader used Force Lighting!")
     vaderSith.forceLightning()
@@ -317,6 +360,10 @@ function enemyTurn() {
     alert("Vader used Force Choke!")
     vaderSith.forceChoke()
   }
+}
+
+function kyloTurn() {
+  var kyloAttack = Math.floor(Math.random() * 2)
   if (kyloAttack > 0) {
     alert("Kylo used Reckless Swing!")
     kyloSith.recklessSwing()
@@ -326,8 +373,6 @@ function enemyTurn() {
     kyloSith.counter()
   }
 }
-
-
 
 
 

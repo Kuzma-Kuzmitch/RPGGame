@@ -1,0 +1,29 @@
+
+
+.lukeImg {
+  transform: scaleX(-1)
+}
+
+.vaderImg {
+  transform: scaleX(-1)
+}
+
+.reyAbilities {
+  background-image: url("https://i.pinimg.com/736x/e1/92/56/e1925642f2b04098f2bc78addff3e197--star-wars-art-star-trek.jpg");
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+.lukeAbilities {
+  background-image: url("https://78.media.tumblr.com/6d18202c736d0715222c9a78a45bb68e/tumblr_nelbqd23Di1ruqwvco5_500.jpg");
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+.lukeBtn {
+  opacity: .9;
+}
+
+.reyBtn {
+  opacity: .9;
+}
