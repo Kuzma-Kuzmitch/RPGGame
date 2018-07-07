@@ -9,6 +9,7 @@ $(document).ready(function() {
     "hasAttacked": false,
     "isStunned": false,
     "wasStunned": false,
+    "isDead": false,
     "staffSwipe": function(target) {
       var dmg = Math.floor(Math.random() * 2) + 2
       target.HP = target.HP - dmg
@@ -23,16 +24,23 @@ $(document).ready(function() {
       gameTurnCheck()
     },
     "forcePush": function(target) {
-      target.isStunned = true
-      alert(target.Name + " is stunned!");
-      if (target === vaderSith) {
-        $(".vaderStatus").text("Stunned")
+      if (target.wasStunned) {
+        alert("It failed!")
+        reyJedi.hasAttacked = true
+        gameTurnCheck()
       }
-      else if (target === kyloSith) {
-        $(".kyloStatus").text("Stunned")
+      else {
+        target.isStunned = true
+        alert(target.Name + " is stunned!");
+        if (target === vaderSith) {
+          $(".vaderStatus").text("Stunned")
+        }
+        else if (target === kyloSith) {
+          $(".kyloStatus").text("Stunned")
+        }
+        reyJedi.hasAttacked = true
+        gameTurnCheck()
       }
-      reyJedi.hasAttacked = true
-      gameTurnCheck()
     },
   };
 
@@ -45,6 +53,7 @@ $(document).ready(function() {
     "isStunned": false,
     "wasStunned": false,
     "isFocus": false,
+    "isDead": false,
     "saberAssault": function(target) {
       var dmg = Math.floor(Math.random() * 2) + 6
       if (lukeJedi.isFocus) {
@@ -60,7 +69,7 @@ $(document).ready(function() {
       target.HP = target.HP - dmg
       lukeJedi.hasAttacked = true
       $("#vaderHP").text("HP: " + vaderSith.HP + "/40")
-      $("#kyloHP").text("HP:" + kyloSith.HP + "/25")
+      $("#kyloHP").text("HP: " + kyloSith.HP + "/25")
       gameTurnCheck()
     },
     "focus": function() {
@@ -79,6 +88,7 @@ $(document).ready(function() {
     "hasAttacked": false,
     "isStunned": false,
     "wasStunned": false,
+    "isDead": false,
     "forceLightning": function(){
       var dmg = Math.floor(Math.random() * 2) + 2
       lukeJedi.HP = lukeJedi.HP - dmg
@@ -123,6 +133,7 @@ $(document).ready(function() {
     "wasStunned": false,
     "hasAttacked": false,
     "isCounter": false,
+    "isDead": false,
     "recklessSwing": function() {
       var target = Math.floor(Math.random() * 2)
       var dmg = Math.floor(Math.random() * 6) + 3
@@ -288,43 +299,7 @@ function gameTurnCheck () {
   if (reyJedi.hasAttacked && lukeJedi.hasAttacked) {
     setTimeout(function(){alert("Enemy turn!"); }, 500);
     setTimeout(function() {enemyTurn(); resetTurn();}, 500);
-    // setTimeout(function(){alert("Your turn!"); }, 500);
-    // setTimeout(function(){resetTurn(); }, 500);
-    // resetTurn()
   }
-}
-
-function resetTurn() {
-  reyJedi.hasAttacked = false
-  $("#reyButton").prop("disabled", false)
-  lukeJedi.hasAttacked = false
-  $("#lukeButton").prop("disabled", false)
-  if (lukeJedi.isStunned) {
-    lukeJedi.isStunned = false
-    lukeJedi.wasStunned = true
-    lukeJedi.hasAttacked = true
-    $("#lukeButton").prop("disabled", true)
-  }
-  else if (!lukeJedi.isStunned && lukeJedi.wasStunned) {
-    lukeJedi.wasStunned = false
-    $(".lukeStatus").text("")
-  }
-  if (reyJedi.isStunned) {
-    reyJedi.isStunned = false
-    reyJedi.wasStunned = true
-    reyJedi.hasAttacked = true
-    $("#reyButton").prop("disabled", true)
-  }
-  else if (!reyJedi.isStunned && reyJedi.wasStunned) {
-    reyJedi.wasStunned = false
-    $(".reyStatus").text("")
-  }
-}
-
-function resetEnemy(){
-  vaderSith.hasAttacked = false
-  kyloSith.hasAttacked = false
-  kyloSith.isCounter = false
 }
 
 function enemyTurn() {
@@ -350,15 +325,61 @@ function enemyTurn() {
   }
 }
 
+function resetTurn() {
+  if (!reyJedi.isDead) {
+    reyJedi.hasAttacked = false
+    $("#reyButton").prop("disabled", false)
+    if (reyJedi.isStunned) {
+      reyJedi.isStunned = false
+      reyJedi.wasStunned = true
+      reyJedi.hasAttacked = true
+      $("#reyButton").prop("disabled", true)
+    }
+    else if (!reyJedi.isStunned && reyJedi.wasStunned) {
+      reyJedi.wasStunned = false
+      $(".reyStatus").text("")
+    }
+  }
+  if (!lukeJedi.isDead) {
+    lukeJedi.hasAttacked = false
+    $("#lukeButton").prop("disabled", false)
+    if (lukeJedi.isStunned) {
+      lukeJedi.isStunned = false
+      lukeJedi.wasStunned = true
+      lukeJedi.hasAttacked = true
+      $("#lukeButton").prop("disabled", true)
+    }
+    else if (!lukeJedi.isStunned && lukeJedi.wasStunned) {
+      lukeJedi.wasStunned = false
+      $(".lukeStatus").text("")
+    }
+  }
+}
+
+function resetEnemy(){
+  vaderSith.hasAttacked = false
+  kyloSith.hasAttacked = false
+  kyloSith.isCounter = false
+  if (kyloSith.isStunned) {
+    $(".kyloStatus").text("")
+  }
+  if (vaderSith.isStunned) {
+    $(".vaderStatus").text("")
+  }
+}
+
+
 function vaderTurn() {
   var vaderAttack = Math.floor(Math.random() * 2)
   if (vaderAttack > 0) {
     alert("Vader used Force Lighting!")
     vaderSith.forceLightning()
+    playerStateCheck()
   }
   else {
     alert("Vader used Force Choke!")
     vaderSith.forceChoke()
+    playerStateCheck()
   }
 }
 
@@ -367,10 +388,37 @@ function kyloTurn() {
   if (kyloAttack > 0) {
     alert("Kylo used Reckless Swing!")
     kyloSith.recklessSwing()
+    playerStateCheck()
   }
   else {
     alert("Kylo used Counter!")
     kyloSith.counter()
+    playerStateCheck()
+  }
+}
+
+function playerStateCheck() {
+  if (reyJedi.HP <= 0 && !reyJedi.isDead) {
+    alert("Rey is defeated!")
+    reyJedi.HP = 0
+    $("#reyHP").text("HP: " + reyJedi.HP + "/15")
+    $(".reyAbilities").css("opacity", ".5")
+    reJedi.hasAttacked = true
+    reyJedi.isDead = true
+    $("#reyButton").prop("disabled", true)
+  }
+  if (lukeJedi.HP <= 0 && !lukeJedi.isDead) {
+    alert("Luke is defeated!")
+    lukeJedi.HP = 0
+    $(".lukeHP").text("HP: " + lukeJedi.HP + "/30")
+    $("lukeAbilities").css("opacity", ".5")
+    lukeJedi.hasAttacked = true
+    lukeJedi.isDead = true
+    $("#lukeButton").prop("disabled", true)
+  }
+  if (reyJedi.isDead && lukeJedi.isDead) {
+    alert("You lose! The Galaxy is lost!")
+    location.reload();
   }
 }
 
