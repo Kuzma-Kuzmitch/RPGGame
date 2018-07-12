@@ -14,13 +14,13 @@ $(document).ready(function() {
       var dmg = Math.floor(Math.random() * 2) + 2
       target.HP = target.HP - dmg
       if (target.isCounter) {
-        alert("Kylo strikes back!")
+        alert("Kylo strikes back for " + Math.floor(dmg / 2) + " damage!")
         reyJedi.HP = reyJedi.HP - Math.floor(dmg / 2)
         $("#reyHP").text("HP: " + reyJedi.HP + "/15")
       }
       reyJedi.hasAttacked = true
       $("#vaderHP").text("HP: " + vaderSith.HP + "/40")
-      $("#kyloHP").text("HP:" + kyloSith.HP + "/25")
+      $("#kyloHP").text("HP: " + kyloSith.HP + "/25")
       gameTurnCheck()
     },
     "forcePush": function(target) {
@@ -62,7 +62,7 @@ $(document).ready(function() {
         $(".lukeStatus").text("")
       }
       if (kyloSith.isCounter && target === kyloSith) {
-        alert("Kylo strikes back!")
+        alert("Kylo strikes back for " + Math.floor(dmg / 2) + " damage!")
         lukeJedi.HP = lukeJedi.HP - Math.floor(dmg / 2)
         $("#lukeHP").text("HP: " + lukeJedi.HP + "/30")
       }
@@ -91,15 +91,30 @@ $(document).ready(function() {
     "isDead": false,
     "forceLightning": function(){
       var dmg = Math.floor(Math.random() * 2) + 2
-      lukeJedi.HP = lukeJedi.HP - dmg
-      reyJedi.HP = reyJedi.HP - dmg
-      vaderSith.hasAttacked = true
-      $("#reyHP").text("HP: " + reyJedi.HP + "/15")
-      $("#lukeHP").text("HP:" + lukeJedi.HP + "/30")
+      if (!reyJedi.isDead && !lukeJedi.isDead) {
+        lukeJedi.HP = lukeJedi.HP - dmg
+        reyJedi.HP = reyJedi.HP - dmg
+        vaderSith.hasAttacked = true
+        alert("Rey and Luke take " + dmg + " damage each!")
+        $("#reyHP").text("HP: " + reyJedi.HP + "/15")
+        $("#lukeHP").text("HP: " + lukeJedi.HP + "/30")
+      }
+      else if (!reyJedi.isDead && lukeJedi.isDead) {
+        reyJedi.HP = reyJedi.HP - (dmg * 2)
+        vaderSith.hasAttacked = true
+        alert("Rey feels the power of the Dark Side! She takes " + (dmg * 2) + " damage!")
+        $("#reyHP").text("HP: " + reyJedi.HP + "/15")
+      }
+      else if (reyJedi.isDead && !lukeJedi.isDead) {
+        lukeJedi.HP = lukeJedi.HP - (dmg * 2)
+        vaderSith.hasAttacked = true
+        alert("Luke feels the power of the Dark Side! He takes " + (dmg * 2) + " damage!")
+        $("#lukeHP").text("HP: " + lukeJedi.HP + "/30")
+      }
     },
     "forceChoke": function(){
       var target = Math.floor(Math.random() * 2)
-      if (target > 0) {
+      if (target > 0 && !reyJedi.isDead) {
         if (!reyJedi.isStunned && !reyJedi.wasStunned) {
           reyJedi.isStunned = true
           vaderSith.hasAttacked = true
@@ -110,7 +125,7 @@ $(document).ready(function() {
           alert("Rey is not stunned!")
         }
       }
-      else {
+      else if (!lukeJedi.isDead) {
         if (!lukeJedi.isStunned && !lukeJedi.wasStunned) {
           lukeJedi.isStunned = true
           vaderSith.hasAttacked = true
@@ -137,21 +152,21 @@ $(document).ready(function() {
     "recklessSwing": function() {
       var target = Math.floor(Math.random() * 2)
       var dmg = Math.floor(Math.random() * 6) + 3
-      if (target > 0) {
+      if (target > 0 && !reyJedi.isDead) {
         reyJedi.HP = reyJedi.HP - dmg
         kyloSith.HP = kyloSith.HP - Math.floor(dmg / 2)
         kyloSith.hasAttacked = true
-        $("#kyloHP").text("HP:" + kyloSith.HP + "/25")
+        alert("Kylo hits Rey for " + dmg + " damage!")
+        $("#kyloHP").text("HP: " + kyloSith.HP + "/25")
         $("#reyHP").text("HP: " + reyJedi.HP + "/15")
-        $("#lukeHP").text("HP:" + lukeJedi.HP + "/30")
       }
-      else {
+      else if (target < 1 && !lukeJedi.isDead) {
         lukeJedi.HP = lukeJedi.HP - dmg
         kyloSith.HP = kyloSith.HP - Math.floor(dmg / 2)
         kyloSith.hasAttacked = true
-        $("#kyloHP").text("HP:" + kyloSith.HP + "/25")
-        $("#reyHP").text("HP: " + reyJedi.HP + "/15")
-        $("#lukeHP").text("HP:" + lukeJedi.HP + "/30")
+        alert("Kylo hits Luke for " + dmg + " damage!")
+        $("#kyloHP").text("HP: " + kyloSith.HP + "/25")
+        $("#lukeHP").text("HP: " + lukeJedi.HP + "/30")
       }
     },
     "counter": function(){
@@ -311,6 +326,7 @@ function enemyTurn() {
   }
   else {
     vaderTurn()
+    playerStateCheck()
     vaderSith.wasStunned = false
     $(".vaderStatus").text("")
   }
@@ -321,6 +337,7 @@ function enemyTurn() {
   }
   else {
     kyloTurn()
+    playerStateCheck()
     kyloSith.wasStunned = false
   }
 }
@@ -340,6 +357,9 @@ function resetTurn() {
       $(".reyStatus").text("")
     }
   }
+  // else {
+  //   gameTurnCheck()
+  // }
   if (!lukeJedi.isDead) {
     lukeJedi.hasAttacked = false
     $("#lukeButton").prop("disabled", false)
@@ -354,12 +374,18 @@ function resetTurn() {
       $(".lukeStatus").text("")
     }
   }
+  else {
+    gameTurnCheck()
+  }
 }
 
 function resetEnemy(){
   vaderSith.hasAttacked = false
   kyloSith.hasAttacked = false
-  kyloSith.isCounter = false
+  if (kyloSith.isCounter) {
+    kyloSith.isCounter = false
+    $(".kyloStatus").text("")
+  }
   if (kyloSith.isStunned) {
     $(".kyloStatus").text("")
   }
@@ -374,12 +400,12 @@ function vaderTurn() {
   if (vaderAttack > 0) {
     alert("Vader used Force Lighting!")
     vaderSith.forceLightning()
-    playerStateCheck()
+    // playerStateCheck()
   }
   else {
     alert("Vader used Force Choke!")
     vaderSith.forceChoke()
-    playerStateCheck()
+    // playerStateCheck()
   }
 }
 
@@ -388,12 +414,12 @@ function kyloTurn() {
   if (kyloAttack > 0) {
     alert("Kylo used Reckless Swing!")
     kyloSith.recklessSwing()
-    playerStateCheck()
+    // playerStateCheck()
   }
   else {
     alert("Kylo used Counter!")
     kyloSith.counter()
-    playerStateCheck()
+    // playerStateCheck()
   }
 }
 
@@ -403,7 +429,7 @@ function playerStateCheck() {
     reyJedi.HP = 0
     $("#reyHP").text("HP: " + reyJedi.HP + "/15")
     $(".reyAbilities").css("opacity", ".5")
-    reJedi.hasAttacked = true
+    reyJedi.hasAttacked = true
     reyJedi.isDead = true
     $("#reyButton").prop("disabled", true)
   }
@@ -411,7 +437,7 @@ function playerStateCheck() {
     alert("Luke is defeated!")
     lukeJedi.HP = 0
     $(".lukeHP").text("HP: " + lukeJedi.HP + "/30")
-    $("lukeAbilities").css("opacity", ".5")
+    $(".lukeAbilities").css("opacity", ".5")
     lukeJedi.hasAttacked = true
     lukeJedi.isDead = true
     $("#lukeButton").prop("disabled", true)
