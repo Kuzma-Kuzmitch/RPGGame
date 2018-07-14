@@ -99,6 +99,9 @@ $(document).ready(function() {
     "forceLightning": function(){
       var dmg = Math.floor(Math.random() * 2) + 2
       if (!reyJedi.isDead && !lukeJedi.isDead) {
+        if (kyloSith.isDead) {
+          dmg = dmg + 5
+        }
         lukeJedi.HP = lukeJedi.HP - dmg
         reyJedi.HP = reyJedi.HP - dmg
         vaderSith.hasAttacked = true
@@ -162,6 +165,10 @@ $(document).ready(function() {
       if (target > 0 && !reyJedi.isDead) {
         reyJedi.HP = reyJedi.HP - dmg
         kyloSith.HP = kyloSith.HP - Math.floor(dmg / 2)
+        if (kyloSith.HP < 5) {
+          alert("Kylo's anger fuels him!")
+          kyloSith.HP = kyloSith.HP + 5
+        }
         kyloSith.hasAttacked = true
         alert("Kylo hits Rey for " + dmg + " damage!")
         $("#kyloHP").text("HP: " + kyloSith.HP + "/25")
@@ -170,6 +177,10 @@ $(document).ready(function() {
       else if (target < 1 && !lukeJedi.isDead) {
         lukeJedi.HP = lukeJedi.HP - dmg
         kyloSith.HP = kyloSith.HP - Math.floor(dmg / 2)
+        if (kyloSith.HP < 5) {
+          alert("Kylo's anger fuels him!")
+          kyloSith.HP = kyloSith.HP + 5
+        }
         kyloSith.hasAttacked = true
         alert("Kylo hits Luke for " + dmg + " damage!")
         $("#kyloHP").text("HP: " + kyloSith.HP + "/25")
@@ -177,6 +188,30 @@ $(document).ready(function() {
       }
     },
     "counter": function(){
+      if (vaderSith.isDead) {
+        alert("Kylo emits a wave of force lighting.")
+        var dmg = Math.floor(Math.random() * 2) + 2
+        if (!reyJedi.isDead && !lukeJedi.isDead) {
+          lukeJedi.HP = lukeJedi.HP - dmg
+          reyJedi.HP = reyJedi.HP - dmg
+          vaderSith.hasAttacked = true
+          alert("Rey and Luke take " + dmg + " damage each!")
+          $("#reyHP").text("HP: " + reyJedi.HP + "/15")
+          $("#lukeHP").text("HP: " + lukeJedi.HP + "/30")
+        }
+        else if (!reyJedi.isDead && lukeJedi.isDead) {
+          reyJedi.HP = reyJedi.HP - (dmg * 2)
+          vaderSith.hasAttacked = true
+          alert("Rey feels the rage of the Kylo Ren! She takes " + (dmg * 2) + " damage!")
+          $("#reyHP").text("HP: " + reyJedi.HP + "/15")
+        }
+        else if (reyJedi.isDead && !lukeJedi.isDead) {
+          lukeJedi.HP = lukeJedi.HP - (dmg * 2)
+          vaderSith.hasAttacked = true
+          alert("Luke feels the rage of the Kylo Ren! He takes " + (dmg * 2) + " damage!")
+          $("#lukeHP").text("HP: " + lukeJedi.HP + "/30")
+        }
+      }
       kyloSith.isCounter = true
       kyloSith.hasAttacked = true
       $(".kyloStatus").text("Countering")
@@ -452,8 +487,8 @@ function playerStateCheck() {
     $("#lukeButton").prop("disabled", true)
   }
   if (reyJedi.isDead && lukeJedi.isDead) {
-    alert("You lose! The Galaxy is lost!")
-    location.reload();
+    alert("Hope falls silent...")
+    window.location = "index4.html"
   }
 }
 
@@ -480,8 +515,8 @@ function enemyStateCheck() {
     $(".lukeKylo").prop("disabled", true)
   }
   if (vaderSith.isDead && kyloSith.isDead) {
-    alert("You win! The Galaxy is lost!")
-    location.reload();
+    alert("Can it be so?")
+    window.location = "index3.html"
   }
 }
 
