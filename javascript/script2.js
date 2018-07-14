@@ -19,14 +19,17 @@ $(document).ready(function() {
         $("#reyHP").text("HP: " + reyJedi.HP + "/15")
       }
       reyJedi.hasAttacked = true
+      enemyStateCheck()
       $("#vaderHP").text("HP: " + vaderSith.HP + "/40")
       $("#kyloHP").text("HP: " + kyloSith.HP + "/25")
+      // enemyStateCheck()
       gameTurnCheck()
     },
     "forcePush": function(target) {
       if (target.wasStunned) {
         alert("It failed!")
         reyJedi.hasAttacked = true
+        enemyStateCheck()
         gameTurnCheck()
       }
       else {
@@ -39,6 +42,7 @@ $(document).ready(function() {
           $(".kyloStatus").text("Stunned")
         }
         reyJedi.hasAttacked = true
+        enemyStateCheck()
         gameTurnCheck()
       }
     },
@@ -68,14 +72,17 @@ $(document).ready(function() {
       }
       target.HP = target.HP - dmg
       lukeJedi.hasAttacked = true
+      enemyStateCheck()
       $("#vaderHP").text("HP: " + vaderSith.HP + "/40")
       $("#kyloHP").text("HP: " + kyloSith.HP + "/25")
+      // enemyStateCheck()
       gameTurnCheck()
     },
     "focus": function() {
       lukeJedi.isFocus = true
       lukeJedi.hasAttacked = true
       $(".lukeStatus").text("Focused")
+      enemyStateCheck()
       gameTurnCheck()
     },
   };
@@ -313,7 +320,7 @@ function gameTurnCheck () {
   }
   if (reyJedi.hasAttacked && lukeJedi.hasAttacked) {
     setTimeout(function(){alert("Enemy turn!"); }, 500);
-    setTimeout(function() {enemyTurn(); resetTurn();}, 500);
+    setTimeout(function() {enemyTurn(); resetTurn(); gameTurnCheck()}, 500);
   }
 }
 
@@ -396,30 +403,32 @@ function resetEnemy(){
 
 
 function vaderTurn() {
-  var vaderAttack = Math.floor(Math.random() * 2)
-  if (vaderAttack > 0) {
-    alert("Vader used Force Lighting!")
-    vaderSith.forceLightning()
-    // playerStateCheck()
-  }
-  else {
-    alert("Vader used Force Choke!")
-    vaderSith.forceChoke()
-    // playerStateCheck()
+  if (!vaderSith.isDead) {
+    var vaderAttack = Math.floor(Math.random() * 2)
+    if (vaderAttack > 0) {
+      alert("Vader used Force Lighting!")
+      vaderSith.forceLightning()
+      // playerStateCheck()
+    }
+    else {
+      alert("Vader used Force Choke!")
+      vaderSith.forceChoke()
+      // playerStateCheck()
+    }
   }
 }
 
 function kyloTurn() {
-  var kyloAttack = Math.floor(Math.random() * 2)
-  if (kyloAttack > 0) {
-    alert("Kylo used Reckless Swing!")
-    kyloSith.recklessSwing()
-    // playerStateCheck()
-  }
-  else {
-    alert("Kylo used Counter!")
-    kyloSith.counter()
-    // playerStateCheck()
+  if (!kyloSith.isDead) {
+    var kyloAttack = Math.floor(Math.random() * 2)
+    if (kyloAttack > 0) {
+      alert("Kylo used Reckless Swing!")
+      kyloSith.recklessSwing()
+    }
+    else {
+      alert("Kylo used Counter!")
+      kyloSith.counter()
+    }
   }
 }
 
@@ -444,6 +453,34 @@ function playerStateCheck() {
   }
   if (reyJedi.isDead && lukeJedi.isDead) {
     alert("You lose! The Galaxy is lost!")
+    location.reload();
+  }
+}
+
+
+function enemyStateCheck() {
+  if (vaderSith.HP <= 0 && !vaderSith.isDead) {
+    alert("Darth Vader is defeated!")
+    vaderSith.HP = 0
+    $("#vaderHP").text("HP: " + vaderSith.HP + "/40")
+    $(".vaderAbilities").css("opacity", ".5")
+    vaderSith.hasAttacked = true
+    vaderSith.isDead = true
+    $(".reyVader").prop("disabled", true)
+    $(".lukeVader").prop("disabled", true)
+  }
+  if (kyloSith.HP <= 0 && !kyloSith.isDead) {
+    alert("Kylo Ren is defeated!")
+    kyloSith.HP = 0
+    $(".kyloHP").text("HP: " + kyloSith.HP + "/25")
+    $(".kyloAbilities").css("opacity", ".5")
+    kyloSith.hasAttacked = true
+    kyloSith.isDead = true
+    $(".reyKylo").prop("disabled", true)
+    $(".lukeKylo").prop("disabled", true)
+  }
+  if (vaderSith.isDead && kyloSith.isDead) {
+    alert("You win! The Galaxy is lost!")
     location.reload();
   }
 }
